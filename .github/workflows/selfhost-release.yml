@@ -7,6 +7,21 @@ on:
         description: "Branch or commit SHA to build (defaults to main)"
         required: false
         default: "main"
+      run-cli:
+        description: "Release CLI binary via GoReleaser"
+        required: false
+        type: boolean
+        default: true
+      run-backend:
+        description: "Build & push backend Docker image"
+        required: false
+        type: boolean
+        default: true
+      run-web:
+        description: "Build & push web Docker image"
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -44,7 +59,7 @@ jobs:
 
   release-cli:
     needs: prepare
-    if: github.repository_owner == 'multica-ai'
+    if: inputs.run-cli && github.repository_owner == 'multica-ai'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -73,6 +88,7 @@ jobs:
 
   docker-backend-build:
     needs: prepare
+    if: inputs.run-backend
     strategy:
       fail-fast: false
       matrix:
@@ -142,6 +158,7 @@ jobs:
 
   docker-backend-merge:
     needs: [prepare, docker-backend-build]
+    if: inputs.run-backend
     runs-on: ubuntu-latest
     concurrency:
       group: dispatch-docker-backend-${{ github.run_id }}
@@ -189,6 +206,7 @@ jobs:
 
   docker-web-build:
     needs: prepare
+    if: inputs.run-web
     strategy:
       fail-fast: false
       matrix:
@@ -258,6 +276,7 @@ jobs:
 
   docker-web-merge:
     needs: [prepare, docker-web-build]
+    if: inputs.run-web
     runs-on: ubuntu-latest
     concurrency:
       group: dispatch-docker-web-${{ github.run_id }}
