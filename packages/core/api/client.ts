@@ -70,6 +70,7 @@ import type {
   ListProjectsResponse,
   ProjectResource,
   CreateProjectResourceRequest,
+  UpdateProjectResourceRequest,
   ListProjectResourcesResponse,
   Label,
   CreateLabelRequest,
@@ -525,6 +526,7 @@ export class ApiClient {
     squad_id?: string;
     prompt: string;
     project_id?: string | null;
+    parent_issue_id?: string | null;
   }): Promise<{ task_id: string }> {
     return this.fetch("/api/issues/quick-create", {
       method: "POST",
@@ -1545,6 +1547,17 @@ export class ApiClient {
   ): Promise<ProjectResource> {
     return this.fetch(`/api/projects/${projectId}/resources`, {
       method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateProjectResource(
+    projectId: string,
+    resourceId: string,
+    data: UpdateProjectResourceRequest,
+  ): Promise<ProjectResource> {
+    return this.fetch(`/api/projects/${projectId}/resources/${resourceId}`, {
+      method: "PUT",
       body: JSON.stringify(data),
     });
   }
